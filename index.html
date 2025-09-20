@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Malla Curricular Interactiva</title>
+<style>
+  :root{
+    --green-approved:#c7f0d6;
+    --gray-available:#e6e6e6;
+    --gray-locked:#9a9a9a;
+    --accent:#2b6cb0;
+    --card-bg:#fff;
+    --shadow: 0 4px 12px rgba(0,0,0,0.06);
+    --badge-bg:#ffd54f;
+  }
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; margin:16px; background:#f7fafc; color:#111}
+  header{display:flex;gap:16px;align-items:center;justify-content:space-between}
+  .title{display:flex;flex-direction:column}
+  h1{margin:0;font-size:18px}
+  p.sub{margin:0;color:#555;font-size:13px}
+  .controls{display:flex;gap:12px;align-items:center}
+  .counter{
+    background:var(--card-bg); padding:10px 14px; border-radius:10px; box-shadow:var(--shadow);
+    display:flex; gap:10px; align-items:center; min-width:220px;
+  }
+  .counter strong{font-size:18px;color:var(--accent)}
+  .grid-wrap{margin-top:18px; display:flex; gap:12px; align-items:flex-start; overflow:auto; padding-bottom:40px}
+  .semester{min-width:220px; background:var(--card-bg); border-radius:10px; padding:10px; box-shadow:var(--shadow)}
+  .sem-title{font-weight:700; font-size:14px; margin-bottom:8px; text-align:center}
+  .course{padding:8px 10px; margin-bottom:8px; border-radius:8px; cursor:pointer; user-select:none; display:flex; flex-direction:column; gap:6px; border:1px solid transparent}
+  .course .meta{display:flex;justify-content:space-between; font-size:12px; color:#333}
+  .course .name{font-size:13px; font-weight:600}
+  .course.locked{background:var(--gray-locked); color:white; opacity:0.95}
+  .course.available{background:var(--gray-available); color:#111; border-color:#d0d0d0}
+  .course.approved{background:var(--green-approved); color:#0b3b19; border-color:rgba(0,0,0,0.06)}
+  .badge{font-size:11px;padding:4px 6px;border-radius:999px;background:var(--badge-bg);display:inline-block}
+  .small{font-size:12px;color:#444}
+  .actions{display:flex;gap:6px;align-items:center}
+  .btn{background:#fff;border:1px solid #ddd;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px}
+  .legend{margin-top:12px; display:flex;gap:8px; align-items:center}
+  .legend .sw{width:18px;height:14px;border-radius:4px;display:inline-block}
+  footer{margin-top:18px;color:#555;font-size:13px}
+  a.pdf-link{color:var(--accent); text-decoration:none; border-bottom:1px dashed rgba(43,108,176,0.25)}
+  .oblig-toggle{font-size:12px; color:#333; background:#fff; border:1px solid #ddd; padding:4px 6px; border-radius:6px; cursor:pointer}
+  @media (max-width:800px){ .semester{min-width:180px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <h1>Malla Curricular Interactiva — Ingeniería Mecánica</h1>
+    <p class="sub">Haz clic en un curso para marcarlo como aprobado. Ajusta "Obligatorio" si aplica.</p>
+  </div>
+
+  <div class="controls">
+    <div class="counter" title="Créditos aprobados">
+      <div>
+        <div style="font-size:12px;color:#666">Créditos Aprobados</div>
+        <strong id="creditCount">0</strong>
+      </div>
+      <div style="border-left:1px solid #eee;height:36px;margin-left:8px;padding-left:8px">
+        <div class="small">Créditos totales curr.</div>
+        <div id="totalCredits" style="font-weight:700">300</div>
+      </div>
+    </div>
+
+    <button class="btn" id="resetBtn" title="Quitar todos los aprobados">Reset Aprobados</button>
+    <a class="btn" id="openPdf" href="#" target="_blank" title="Abrir PDF de la malla">Abrir PDF de la malla</a>
+  </div>
+</header>
+
+<section class="grid-wrap" id="grid"></section>
+
+<section class="legend">
+  <div><span class="sw" style="background:var(--green-approved)"></span> Aprobado</div>
+  <div><span class="sw" style="background:var(--gray-available)"></span> Disponible</div>
+  <div><span class="sw" style="background:var(--gray-locked)"></span> Bloqueado</div>
+</section>
+
+<footer>
+  PDF original subido por el usuario: <a class="pdf-link" href="#" id="pdfRef" target="_blank">Malla Ingeniería Mecánica.pdf</a>. :contentReference[oaicite:1]{index=1}
+</footer>
+
+<script>
+/* Datos de cursos (copiados del JSON que enviaste) */
+const cursos = [
+{"codigo":"3000","nombre":"Área Matemática Básica 1","creditos":9,"prereq":[],"semestre":1},
+{"codigo":"3001","nombre":"Química General 1","creditos":7,"prereq":[],"semestre":1},
+{"codigo":"3003","nombre":"Área Social Humanística 1","creditos":3,"prereq":[],"semestre":1},
+{"codigo":"3004","nombre":"Área Técnica Complememtaria 1","creditos":4,"prereq":[],"semestre":1},
+{"codigo":"3005","nombre":"Técnicas de Estudio e Investigación","creditos":3,"prereq":[],"semestre":1},
+{"codigo":"3082","nombre":"Idioma Tecnico 1","creditos":3,"prereq":[],"semestre":1},
+{"codigo":"3082-D","nombre":"Deportes 1","creditos":2,"prereq":[],"semestre":1},
+{"codigo":"3006","nombre":"Matemática Básica 2","creditos":9,"prereq":["3000"],"semestre":2},
+{"codigo":"3007","nombre":"Física Básica","creditos":5,"prereq":["3000"],"semestre":2},
+{"codigo":"3011","nombre":"Área Social Humanística 2","creditos":3,"prereq":["3003"],"semestre":2},
+{"codigo":"3084","nombre":"Ecología","creditos":4,"prereq":["3001","3003"],"semestre":2},
+{"codigo":"3083","nombre":"Dibujo Técnico Mecánico","creditos":3,"prereq":["3004"],"semestre":2},
+{"codigo":"3086","nombre":"Deportes 2","creditos":2,"prereq":["3082"],"semestre":2},
+{"codigo":"3085","nombre":"Idioma Tecnico 2","creditos":3,"prereq":["3083"],"semestre":2},
+{"codigo":"3013","nombre":"Área Matemática Intermedia 1","creditos":9,"prereq":["3006"],"semestre":3},
+{"codigo":"3014","nombre":"Física 1","creditos":5,"prereq":["3006","3007"],"semestre":3},
+{"codigo":"3020","nombre":"Prácticas Iniciales","creditos":0,"prereq":["3006"],"semestre":3},
+{"codigo":"3087","nombre":"Legislación 1","creditos":3,"prereq":["3011"],"semestre":3},
+{"codigo":"3089","nombre":"Logica","creditos":1,"prereq":["3011"],"semestre":3},
+{"codigo":"3088","nombre":"Quimica 2","creditos":6,"prereq":["3000","3001","3007"],"semestre":3},
+{"codigo":"3098","nombre":"Idioma Tecnico 3","creditos":3,"prereq":["3085"],"semestre":3},
+{"codigo":"3021","nombre":"Área Matemática Intermedia 2","creditos":6,"prereq":["3013"],"semestre":4},
+{"codigo":"3022","nombre":"Área Matemática Intermedia 3","creditos":6,"prereq":["3013"],"semestre":4},
+{"codigo":"3023","nombre":"Física 2","creditos":6,"prereq":["3013","3014"],"semestre":4},
+{"codigo":"3090","nombre":"Estadística 1","creditos":5,"prereq":["3013","3005"],"semestre":4},
+{"codigo":"3025","nombre":"Mecánica analítica 1","creditos":4,"prereq":["3013","3014"],"semestre":4},
+{"codigo":"3019","nombre":"Etica Profesional","creditos":2,"prereq":["3011"],"semestre":4},
+{"codigo":"3026","nombre":"Filosofía de la Ciencia","creditos":1,"prereq":["3011"],"semestre":4},
+{"codigo":"3027","nombre":"Matemática Aplicada 3","creditos":5,"prereq":["3021","3022"],"semestre":5},
+{"codigo":"3091","nombre":"Programación de Computadoras 1","creditos":3,"prereq":["3022","3090"],"semestre":5},
+{"codigo":"3034","nombre":"Mecánica de Fluidos","creditos":5,"prereq":["3022","3025"],"semestre":5},
+{"codigo":"3029","nombre":"Mecánica Analítica 2","creditos":5,"prereq":["3022","3025"],"semestre":5},
+{"codigo":"3033","nombre":"Ingenieria Electrica 1","creditos":6,"prereq":["3022","3023"],"semestre":5},
+{"codigo":"3092","nombre":"Electricidad y Electronica Basica","creditos":6,"prereq":["3023"],"semestre":5},
+{"codigo":"3093","nombre":"Ingenieria Electrica 2","creditos":6,"prereq":["3033"],"semestre":6},
+{"codigo":"3042","nombre":"Termodinámica 1","creditos":6,"prereq":["3034"],"semestre":6},
+{"codigo":"3031","nombre":"Resistencia de Materiales  1","creditos":5,"prereq":["3022","3025"],"semestre":6},
+{"codigo":"3032","nombre":"Ciencia de los Materiales","creditos":4,"prereq":["3023"],"semestre":6},
+{"codigo":"3094","nombre":"Hidraulica","creditos":5,"prereq":["3034"],"semestre":6},
+{"codigo":"3099","nombre":"Ingeniería de Costos","creditos":4,"prereq":["3090"],"semestre":6},
+{"codigo":"3095","nombre":"Maquinas Hidraulicas","creditos":6,"prereq":["3094"],"semestre":7},
+{"codigo":"3096","nombre":"Mecanismos","creditos":3,"prereq":["3029","3032"],"semestre":7},
+{"codigo":"3050","nombre":"Termodinámica 2","creditos":6,"prereq":["3042"],"semestre":7},
+{"codigo":"3040","nombre":"Resistencias de Materiales 2","creditos":5,"prereq":["3031"],"semestre":7},
+{"codigo":"3041","nombre":"Procesos de Manufactura 1","creditos":5,"prereq":["3032"],"semestre":7},
+{"codigo":"3097","nombre":"Practicas Intermedias","creditos":0,"prereq":["3032","3042","3020"],"semestre":7},
+{"codigo":"3024","nombre":"Estadistica 2","creditos":5,"prereq":["3090"],"semestre":7},
+{"codigo":"3057","nombre":"Diseño de Maquinas 1","creditos":4,"prereq":["3040","3032"],"semestre":8},
+{"codigo":"3059","nombre":"Plantas de Vapor","creditos":6,"prereq":["3050"],"semestre":8},
+{"codigo":"3049","nombre":"Metalurgia y Metalografia","creditos":6,"prereq":["3032"],"semestre":8},
+{"codigo":"3100","nombre":"Procesos de Manufactura 2","creditos":5,"prereq":["3041"],"semestre":8},
+{"codigo":"3101","nombre":"Mantenimiento de  Hospitales 1","creditos":4,"prereq":["3093","3050","3095"],"semestre":8},
+{"codigo":"3102","nombre":"Vibraciones","creditos":6,"prereq":["3096"],"semestre":8},
+{"codigo":"3103","nombre":"Montaje y Mantenimiento de Equipo","creditos":4,"prereq":["3041"],"semestre":9},
+{"codigo":"3104","nombre":"Mantenimiento de Hospitales 2","creditos":4,"prereq":["3101"],"semestre":9},
+{"codigo":"3105","nombre":"Diseño de Maquinas 2","creditos":4,"prereq":["3057"],"semestre":9},
+{"codigo":"3106","nombre":"Refrigeración y Aire Acondicionado","creditos":6,"prereq":["3050"],"semestre":9},
+{"codigo":"3107","nombre":"Seminario de Investigación Mecánica","creditos":4,"prereq":["3059","3049"],"semestre":9},
+{"codigo":"3108","nombre":"Practicas Finales de Ingenieria Mecánica","creditos":0,"prereq":["3097"],"semestre":9},
+{"codigo":"3110","nombre":"Ingeniería Economica 1","creditos":4,"prereq":["3090"],"semestre":9},
+{"codigo":"3111","nombre":"Salud y Seguridad Ocupacional","creditos":5,"prereq":["3033"],"semestre":9},
+{"codigo":"3109","nombre":"Seminario de Investigación E.P.S. Mecánica","creditos":3,"prereq":["3059","3049"],"semestre":9},
+{"codigo":"3112","nombre":"Instrumentación Mecánica","creditos":3,"prereq":["3093","3059","3105"],"semestre":10},
+{"codigo":"3113","nombre":"Instalaciones Mecanicas","creditos":5,"prereq":["3059","3105"],"semestre":10},
+{"codigo":"3114","nombre":"Mantenimiento de Hospitales 3","creditos":4,"prereq":["3104"],"semestre":10},
+{"codigo":"3115","nombre":"Diseño de Maquinas 3","creditos":4,"prereq":["3105"],"semestre":10},
+{"codigo":"3058","nombre":"Motores de Combustión Interna","creditos":6,"prereq":["3050"],"semestre":10},
+{"codigo":"3116","nombre":"Fundamentos de Administración","creditos":4,"prereq":["3090","3103"],"semestre":10},
+{"codigo":"3117","nombre":"Investigación de Operaciones 1","creditos":6,"prereq":["3091"],"semestre":10}
+];
+
+/* Mapa por código para rápido acceso */
+const cursoMap = {};
+cursos.forEach(c=> cursoMap[c.codigo]=c);
+
+/* Estado dinámico: approvedSet y obligatorySet */
+let approved = new Set(); // códigos aprobados
+let obligatory = new Set(); // cursos marcados como obligatorios por el usuario
+
+/* cálculo de créditos totales en el plan (solo para mostrar) */
+const totalCredits = cursos.reduce((s,c)=>s + (c.creditos||0),0);
+document.getElementById('totalCredits').textContent = totalCredits;
+
+/* función que determina si un curso está disponible (todos sus prereq aprobados) */
+function isAvailable(course){
+  if(!course.prereq || course.prereq.length===0) return true;
+  return course.prereq.every(code => approved.has(code));
+}
+
+/* render por semestres */
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const sems = [...new Set(cursos.map(c=>c.semestre))].sort((a,b)=>a-b);
+  sems.forEach(sem=>{
+    const box = document.createElement('div');
+    box.className = 'semester';
+    const title = document.createElement('div');
+    title.className='sem-title';
+    title.textContent = `Semestre ${sem}`;
+    box.appendChild(title);
+
+    const cursosSem = cursos.filter(c=>c.semestre===sem).sort((a,b)=>a.codigo.localeCompare(b.codigo));
+    cursosSem.forEach(c=>{
+      const div = document.createElement('div');
+      div.className='course';
+      div.dataset.code = c.codigo;
+
+      // estado
+      const state = approved.has(c.codigo) ? 'approved' : (isAvailable(c) ? 'available' : 'locked');
+      div.classList.add(state);
+
+      // content
+      const name = document.createElement('div');
+      name.className='name';
+      name.textContent = `${c.codigo} — ${c.nombre}`;
+      div.appendChild(name);
+
+      const meta = document.createElement('div');
+      meta.className='meta';
+      const cred = document.createElement('div');
+      cred.className='small';
+      cred.textContent = `${c.creditos} cr`;
+      meta.appendChild(cred);
+
+      const right = document.createElement('div');
+      right.style.display='flex';
+      right.style.gap='8px';
+      right.style.alignItems='center';
+
+      // badge obligatorio si aplica
+      if(obligatory.has(c.codigo)){
+        const b = document.createElement('span');
+        b.className='badge';
+        b.textContent = 'Obligatorio';
+        right.appendChild(b);
+      }
+
+      // show prereqs short
+      if(c.prereq && c.prereq.length>0){
+        const pre = document.createElement('div');
+        pre.className='small';
+        pre.style.opacity = '0.85';
+        pre.textContent = 'Prer: ' + c.prereq.join(',');
+        right.appendChild(pre);
+      }
+
+      meta.appendChild(right);
+      div.appendChild(meta);
+
+      // actions area: obligatorio toggle
+      const actions = document.createElement('div');
+      actions.className='actions';
+      const obligBtn = document.createElement('button');
+      obligBtn.className='oblig-toggle';
+      obligBtn.textContent = obligatory.has(c.codigo) ? 'Quitar obligatorio' : 'Marcar obligatorio';
+      obligBtn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        if(obligatory.has(c.codigo)) obligatory.delete(c.codigo); else obligatory.add(c.codigo);
+        render();
+      });
+      actions.appendChild(obligBtn);
+
+      // small reset approval for this course
+      const clearBtn = document.createElement('button');
+      clearBtn.className='btn';
+      clearBtn.textContent = 'Quitar aprobado';
+      clearBtn.title = 'Quitar aprobado (si está aprobado)';
+      clearBtn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        approved.delete(c.codigo);
+        render();
+      });
+      actions.appendChild(clearBtn);
+
+      div.appendChild(actions);
+
+      // click para alternar aprobado si está disponible OR si ya aprobado (permitir desmarcar)
+      div.addEventListener('click', ()=>{
+        if(approved.has(c.codigo)){
+          approved.delete(c.codigo);
+        } else {
+          if(isAvailable(c)){
+            approved.add(c.codigo);
+          } else {
+            // si está bloqueado, reproducir pequeña alerta visual
+            div.animate([{transform:'scale(1)'},{transform:'scale(0.98)'},{transform:'scale(1)'}],{duration:180});
+            return;
+          }
+        }
+        render();
+      });
+
+      box.appendChild(div);
+    });
+
+    grid.appendChild(box);
+  });
+
+  // actualizar contador de créditos aprobados
+  const approvedCredits = [...approved].reduce((s,code)=> s + (cursoMap[code] ? (cursoMap[code].creditos || 0) : 0), 0);
+  document.getElementById('creditCount').textContent = approvedCredits;
+
+  // update reset button title if none approved
+  document.getElementById('resetBtn').disabled = approved.size===0;
+}
+
+/* eventos globales */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  approved = new Set();
+  render();
+});
+
+/* abrir PDF - usa la ruta del archivo subido (en servidor NO disponible al cliente en general) */
+/* Si vas a usar localmente: reemplaza pdfUrl por la ruta local o por el enlace al PDF subido */
+const pdfUrl = 'Malla Ingeniería Mécanica.pdf'; // si guardas el html junto al PDF, el enlace funcionará
+document.getElementById('openPdf').href = pdfUrl;
+document.getElementById('pdfRef').href = pdfUrl;
+
+/* render inicial */
+render();
+</script>
+</body>
+</html>
