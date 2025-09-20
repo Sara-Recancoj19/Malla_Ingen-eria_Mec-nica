@@ -83,139 +83,103 @@
 </footer>
 
 <script>
-/* Datos de cursos (resumidos por espacio, pero debes dejar todos los que me diste antes) */
-const cursos = [
+/* ===== Cursos completos de tu malla ===== */
+const cursos = [ 
   {"codigo":"3000","nombre":"Área Matemática Básica 1","creditos":9,"prereq":[],"semestre":1},
   {"codigo":"3001","nombre":"Química General 1","creditos":7,"prereq":[],"semestre":1},
   {"codigo":"3003","nombre":"Área Social Humanística 1","creditos":3,"prereq":[],"semestre":1},
   {"codigo":"3004","nombre":"Área Técnica Complememtaria 1","creditos":4,"prereq":[],"semestre":1},
   {"codigo":"3005","nombre":"Técnicas de Estudio e Investigación","creditos":3,"prereq":[],"semestre":1},
-  /* ... pega aquí el resto de cursos que me diste ... */
-  {"codigo":"3115","nombre":"Diseño de Maquinas 3","creditos":4,"prereq":["3105"],"semestre":10}
+  {"codigo":"3082","nombre":"Idioma Tecnico 1","creditos":3,"prereq":[],"semestre":1},
+  {"codigo":"3082-D","nombre":"Deportes 1","creditos":2,"prereq":[],"semestre":1},
+  {"codigo":"3006","nombre":"Área Matemática Básica 2","creditos":9,"prereq":["3000"],"semestre":2},
+  {"codigo":"3007","nombre":"Física Básica","creditos":5,"prereq":["3000"],"semestre":2},
+  {"codigo":"3011","nombre":"Área Social Humanística 2","creditos":3,"prereq":["3003"],"semestre":2},
+  {"codigo":"3084","nombre":"Ecología","creditos":4,"prereq":["3001","3003"],"semestre":2},
+  {"codigo":"3083","nombre":"Dibujo Técnico Mecánico","creditos":3,"prereq":["3004"],"semestre":2},
+  {"codigo":"3086","nombre":"Deportes 2","creditos":2,"prereq":["3082"],"semestre":2},
+  {"codigo":"3085","nombre":"Idioma Tecnico 2","creditos":3,"prereq":["3083"],"semestre":2},
+  {"codigo":"3013","nombre":"Área Matemática Intermedia 1","creditos":9,"prereq":["3006"],"semestre":3},
+  {"codigo":"3014","nombre":"Física 1","creditos":5,"prereq":["3006","3007"],"semestre":3},
+  {"codigo":"3020","nombre":"Prácticas Iniciales","creditos":0,"prereq":["3006"],"semestre":3},
+  {"codigo":"3087","nombre":"Legislación 1","creditos":3,"prereq":["3011"],"semestre":3},
+  {"codigo":"3089","nombre":"Logica","creditos":1,"prereq":["3011"],"semestre":3},
+  {"codigo":"3088","nombre":"Quimica 2","creditos":6,"prereq":["3000","3001","3007"],"semestre":3},
+  {"codigo":"3098","nombre":"Idioma Tecnico 3","creditos":3,"prereq":["3085"],"semestre":3},
+  {"codigo":"3021","nombre":"Área Matemática Intermedia 2","creditos":6,"prereq":["3013"],"semestre":4},
+  {"codigo":"3022","nombre":"Área Matemática Intermedia 3","creditos":6,"prereq":["3013"],"semestre":4},
+  {"codigo":"3023","nombre":"Física 2","creditos":6,"prereq":["3013","3014"],"semestre":4},
+  {"codigo":"3090","nombre":"Estadística 1","creditos":5,"prereq":["3013","3005"],"semestre":4},
+  {"codigo":"3025","nombre":"Mecánica analítica 1","creditos":4,"prereq":["3013","3014"],"semestre":4},
+  {"codigo":"3019","nombre":"Etica Profesional","creditos":2,"prereq":["3011"],"semestre":4},
+  {"codigo":"3026","nombre":"Filosofía de la Ciencia","creditos":1,"prereq":["3011"],"semestre":4},
+  {"codigo":"3027","nombre":"Matemática Aplicada 3","creditos":5,"prereq":["3021","3022"],"semestre":5},
+  {"codigo":"3091","nombre":"Programación de Computadoras 1","creditos":3,"prereq":["3022","3090"],"semestre":5},
+  {"codigo":"3034","nombre":"Mecánica de Fluidos","creditos":5,"prereq":["3022","3025"],"semestre":5},
+  {"codigo":"3029","nombre":"Mecánica Analítica 2","creditos":5,"prereq":["3022","3025"],"semestre":5},
+  {"codigo":"3033","nombre":"Ingenieria Electrica 1","creditos":6,"prereq":["3022","3023"],"semestre":5},
+  {"codigo":"3092","nombre":"Electricidad y Electronica Basica","creditos":6,"prereq":["3023"],"semestre":5},
+  {"codigo":"3093","nombre":"Ingenieria Electrica 2","creditos":6,"prereq":["3033"],"semestre":6},
+  {"codigo":"3042","nombre":"Termodinámica 1","creditos":6,"prereq":["3034"],"semestre":6},
+  {"codigo":"3031","nombre":"Resistencia de Materiales 1","creditos":5,"prereq":["3022","3025"],"semestre":6},
+  {"codigo":"3032","nombre":"Ciencia de los Materiales","creditos":4,"prereq":["3023"],"semestre":6},
+  {"codigo":"3094","nombre":"Hidraulica","creditos":5,"prereq":["3034"],"semestre":6},
+  {"codigo":"3099","nombre":"Ingeniería de Costos","creditos":4,"prereq":["3090"],"semestre":6},
+  {"codigo":"3095","nombre":"Maquinas Hidraulicas","creditos":6,"prereq":["3094"],"semestre":7},
+  {"codigo":"3096","nombre":"Mecanismos","creditos":3,"prereq":["3029","3032"],"semestre":7},
+  {"codigo":"3050","nombre":"Termodinámica 2","creditos":6,"prereq":["3042"],"semestre":7},
+  {"codigo":"3040","nombre":"Resistencias de Materiales 2","creditos":5,"prereq":["3031"],"semestre":7},
+  {"codigo":"3041","nombre":"Procesos de Manufactura 1","creditos":5,"prereq":["3032"],"semestre":7},
+  {"codigo":"3097","nombre":"Practicas Intermedias","creditos":0,"prereq":["3032","3042","3020"],"semestre":7},
+  {"codigo":"3024","nombre":"Estadistica 2","creditos":5,"prereq":["3090"],"semestre":7},
+  {"codigo":"3057","nombre":"Diseño de Maquinas 1","creditos":4,"prereq":["3040","3032"],"semestre":8},
+  {"codigo":"3059","nombre":"Plantas de Vapor","creditos":6,"prereq":["3050"],"semestre":8},
+  {"codigo":"3049","nombre":"Metalurgia y Metalografia","creditos":6,"prereq":["3032"],"semestre":8},
+  {"codigo":"3100","nombre":"Procesos de Manufactura 2","creditos":5,"prereq":["3041"],"semestre":8},
+  {"codigo":"3101","nombre":"Mantenimiento de Hospitales 1","creditos":4,"prereq":["3093","3050","3095"],"semestre":8},
+  {"codigo":"3102","nombre":"Vibraciones","creditos":6,"prereq":["3096"],"semestre":8},
+  {"codigo":"3103","nombre":"Montaje y Mantenimiento de Equipo","creditos":4,"prereq":["3041"],"semestre":9},
+  {"codigo":"3104","nombre":"Mantenimiento de Hospitales 2","creditos":4,"prereq":["3101"],"semestre":9},
+  {"codigo":"3105","nombre":"Diseño de Maquinas 2","creditos":4,"prereq":["3057"],"semestre":9},
+  {"codigo":"3106","nombre":"Refrigeración y Aire Acondicionado","creditos":6,"prereq":["3050"],"semestre":9},
+  {"codigo":"3107","nombre":"Seminario de Investigación Mecánica","creditos":4,"prereq":["3059","3049"],"semestre":9},
+  {"codigo":"3108","nombre":"Practicas Finales de Ingenieria Mecánica","creditos":0,"prereq":["3097"],"semestre":9},
+  {"codigo":"3110","nombre":"Ingeniería Economica 1","creditos":4,"prereq":["3090"],"semestre":9},
+  {"codigo":"3111","nombre":"Salud y Seguridad Ocupacional","creditos":5,"prereq":["3033"],"semestre":9},
+  {"codigo":"3109","nombre":"Seminario de Investigación E.P.S. Mecánica","creditos":3,"prereq":["3059","3049"],"semestre":9},
+  {"codigo":"3112","nombre":"Instrumentación Mecánica","creditos":3,"prereq":["3093","3059","3105"],"semestre":10},
+  {"codigo":"3113","nombre":"Instalaciones Mecanicas","creditos":5,"prereq":["3059","3105"],"semestre":10},
+  {"codigo":"3114","nombre":"Mantenimiento de Hospitales 3","creditos":4,"prereq":["3104"],"semestre":10},
+  {"codigo":"3115","nombre":"Diseño de Maquinas 3","creditos":4,"prereq":["3105"],"semestre":10},
+  {"codigo":"3058","nombre":"Motores de Combustión Interna","creditos":6,"prereq":["3050"],"semestre":10},
+  {"codigo":"3116","nombre":"Fundamentos de Administración","creditos":4,"prereq":["3090","3103"],"semestre":10},
+  {"codigo":"3117","nombre":"Investigación de Operaciones 1","creditos":6,"prereq":["3091"],"semestre":10}
 ];
 
-/* Códigos de cursos obligatorios */
+/* Cursos obligatorios (según tu lista) */
 const obligatoriosFijos = new Set([
-  "3000","3001","3003","3004","3005",
-  "3006","3007","3011","3084","3083","3085",
-  "3013","3014","3020","3021","3022","3023","3090","3025",
-  "3027","3091","3034","3029","3033","3092",
-  "3093","3042","3031","3032",
-  "3095","3096","3050","3040","3041","3097",
-  "3057","3059","3049","3100","3101","3102",
-  "3103","3104","3105","3106","3107","3108",
-  "3112","3113","3114","3115"
+  "3000","3001","3003","3004","3005","3006","3007","3011","3084","3083","3085",
+  "3013","3014","3020","3021","3022","3023","3090","3025","3027","3091","3034",
+  "3029","3033","3092","3093","3042","3031","3032","3095","3096","3050","3040",
+  "3041","3097","3057","3059","3049","3100","3101","3102","3103","3104","3105",
+  "3106","3107","3108","3112","3113","3114","3115"
 ]);
 
-/* Mapa por código */
-const cursoMap = {};
-cursos.forEach(c=> cursoMap[c.codigo]=c);
-
+/* Map */
+const cursoMap = {}; cursos.forEach(c=> cursoMap[c.codigo]=c);
 let approved = new Set();
 
-/* Créditos totales */
+/* Total créditos */
 const totalCredits = cursos.reduce((s,c)=>s + (c.creditos||0),0);
 document.getElementById('totalCredits').textContent = totalCredits;
 
-/* función para ver si un curso está disponible */
+/* Disponible si todos los prerrequisitos están aprobados */
 function isAvailable(course){
   if(!course.prereq || course.prereq.length===0) return true;
   return course.prereq.every(code => approved.has(code));
 }
 
-/* render */
+/* Render */
 function render(){
   const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  const sems = [...new Set(cursos.map(c=>c.semestre))].sort((a,b)=>a-b);
-  sems.forEach(sem=>{
-    const box = document.createElement('div');
-    box.className = 'semester';
-    const title = document.createElement('div');
-    title.className='sem-title';
-    title.textContent = `Semestre ${sem}`;
-    box.appendChild(title);
-
-    const cursosSem = cursos.filter(c=>c.semestre===sem).sort((a,b)=>a.codigo.localeCompare(b.codigo));
-    cursosSem.forEach(c=>{
-      const div = document.createElement('div');
-      div.className='course';
-      div.dataset.code = c.codigo;
-
-      const state = approved.has(c.codigo) ? 'approved' : (isAvailable(c) ? 'available' : 'locked');
-      div.classList.add(state);
-
-      const name = document.createElement('div');
-      name.className='name';
-      name.textContent = `${c.codigo} — ${c.nombre}`;
-      div.appendChild(name);
-
-      const meta = document.createElement('div');
-      meta.className='meta';
-      const cred = document.createElement('div');
-      cred.className='small';
-      cred.textContent = `${c.creditos} cr`;
-      meta.appendChild(cred);
-
-      const right = document.createElement('div');
-      right.style.display='flex';
-      right.style.gap='8px';
-      right.style.alignItems='center';
-
-      if(obligatoriosFijos.has(c.codigo)){
-        const b = document.createElement('span');
-        b.className='badge';
-        b.textContent = '✔️';
-        right.appendChild(b);
-      }
-
-      if(c.prereq && c.prereq.length>0){
-        const pre = document.createElement('div');
-        pre.className='small';
-        pre.style.opacity = '0.85';
-        pre.textContent = 'Prer: ' + c.prereq.join(',');
-        right.appendChild(pre);
-      }
-
-      meta.appendChild(right);
-      div.appendChild(meta);
-
-      // click para aprobar
-      div.addEventListener('click', ()=>{
-        if(approved.has(c.codigo)){
-          approved.delete(c.codigo);
-        } else {
-          if(isAvailable(c)){
-            approved.add(c.codigo);
-          } else {
-            div.animate([{transform:'scale(1)'},{transform:'scale(0.98)'},{transform:'scale(1)'}],{duration:180});
-            return;
-          }
-        }
-        render();
-      });
-
-      box.appendChild(div);
-    });
-
-    grid.appendChild(box);
-  });
-
-  const approvedCredits = [...approved].reduce((s,code)=> s + (cursoMap[code] ? (cursoMap[code].creditos || 0) : 0), 0);
-  document.getElementById('creditCount').textContent = approvedCredits;
-  document.getElementById('resetBtn').disabled = approved.size===0;
-}
-
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  approved = new Set();
-  render();
-});
-
-const pdfUrl = 'Malla Ingeniería Mécanica.pdf';
-document.getElementById('openPdf').href = pdfUrl;
-document.getElementById('pdfRef').href = pdfUrl;
-
-render();
-</script>
-</body>
-</html>
+  grid.inner
